@@ -17,15 +17,16 @@ EthernetServer server(80);
 String readString;
 const int LED = 2;
 
+const int CS = 4;
+const int LIGHT_PIN = A0;
+
+int light;
+unsigned int iteration;
+
 void setup() {
-  pinMode(LED, OUTPUT);
+  /*pinMode(LED, OUTPUT);
   // You can use Ethernet.init(pin) to configure the CS pin
   //Ethernet.init(10);  // Most Arduino shields
-  //Ethernet.init(5);   // MKR ETH shield
-  //Ethernet.init(0);   // Teensy 2.0
-  //Ethernet.init(20);  // Teensy++ 2.0
-  //Ethernet.init(15);  // ESP8266 with Adafruit Featherwing Ethernet
-  //Ethernet.init(33);  // ESP32 with Adafruit Featherwing Ethernet
 
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
@@ -55,14 +56,33 @@ void setup() {
   Serial.println(Ethernet.localIP());
 
   // start listening for clients
-  server.begin();
+  server.begin();*/
+  Serial.begin(9600);
+  if(!SD.begin(CS)){
+    Serial.print("cannot get sd card");
+    return;
+  }
+  Serial.println("Card initialized");
 }
 
 void loop() {
+  light = analogRead(LIGHT_PIN);
+  File file = SD.open("light.txt", FILE_WRITE);
+  if(file){
+    String data = "";
+    data += String(iteration);
+    data += ",";
+    data += String(light);
+    data += ",";
+    file.println(data);
+    Serial.println(data);
+    file.close();
+  }
+  iteration++;
+  delay(60000);
   // wait for a new client:
-  EthernetClient client = server.available();
+  /*EthernetClient client = server.available();
 
-  // when the client sends the first byte, say hello:
   if (client) {
     while(client.connected()){
       if(client.available()){
@@ -96,19 +116,6 @@ void loop() {
           readString = "";
         }
       }
-    }
-    /*if (!gotAMessage) {
-      Serial.println("We have a new client");
-      client.println("Hello, client!");
-      gotAMessage = true;
-    }
-
-    // read the bytes incoming from the client:
-    char thisChar = client.read();
-    // echo the bytes back to the client:
-    server.write(thisChar);
-    // echo the bytes to the server as well:
-    Serial.print(thisChar);
-    Ethernet.maintain();*/
+    }*/
   }
 }
